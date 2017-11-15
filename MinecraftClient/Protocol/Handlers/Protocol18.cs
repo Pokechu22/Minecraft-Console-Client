@@ -26,6 +26,7 @@ namespace MinecraftClient.Protocol.Handlers
         private const int MC112pre5Version = 332;
         private const int MC17w31aVersion = 336;
         private const int MC17w45aVersion = 343;
+        private const int MC17w46aVersion = 345;
 
         private int compression_treshold = 0;
         private bool autocomplete_received = false;
@@ -278,7 +279,7 @@ namespace MinecraftClient.Protocol.Handlers
                     default: return PacketIncomingType.UnknownPacket;
                 }
             }
-            else
+            else if (protocol < MC17w46aVersion)
             {
                 switch (packetID)
                 {
@@ -298,6 +299,29 @@ namespace MinecraftClient.Protocol.Handlers
                     case 0x1A: return PacketIncomingType.KickPacket;
                     //NetworkCompressionTreshold removed in 1.9
                     case 0x34: return PacketIncomingType.ResourcePackSend;
+                    default: return PacketIncomingType.UnknownPacket;
+                }
+            }
+            else
+            {
+                switch (packetID)
+                {
+                    case 0x20: return PacketIncomingType.KeepAlive;
+                    case 0x24: return PacketIncomingType.JoinGame;
+                    case 0x0E: return PacketIncomingType.ChatMessage;
+                    case 0x36: return PacketIncomingType.Respawn;
+                    case 0x30: return PacketIncomingType.PlayerPositionAndLook;
+                    case 0x21: return PacketIncomingType.ChunkData;
+                    case 0x0F: return PacketIncomingType.MultiBlockChange;
+                    case 0x0B: return PacketIncomingType.BlockChange;
+                    //MapChunkBulk removed in 1.9
+                    case 0x1E: return PacketIncomingType.UnloadChunk;
+                    case 0x2F: return PacketIncomingType.PlayerListUpdate;
+                    //TabCompleteResult not present in this snapshot?
+                    case 0x19: return PacketIncomingType.PluginMessage;
+                    case 0x1B: return PacketIncomingType.KickPacket;
+                    //NetworkCompressionTreshold removed in 1.9
+                    case 0x35: return PacketIncomingType.ResourcePackSend;
                     default: return PacketIncomingType.UnknownPacket;
                 }
             }
@@ -408,7 +432,7 @@ namespace MinecraftClient.Protocol.Handlers
                     case PacketOutgoingType.TeleportConfirm: return 0x00;
                 }
             }
-            else
+            else if (protocol < MC17w46aVersion)
             {
                 switch (packet)
                 {
@@ -421,6 +445,22 @@ namespace MinecraftClient.Protocol.Handlers
                     case PacketOutgoingType.TabComplete: throw new InvalidOperationException("No tab completion in 17w45a");
                     case PacketOutgoingType.PlayerPosition: return 0x0C;
                     case PacketOutgoingType.PlayerPositionAndLook: return 0x0D;
+                    case PacketOutgoingType.TeleportConfirm: return 0x00;
+                }
+            }
+            else
+            {
+                switch (packet)
+                {
+                    case PacketOutgoingType.KeepAlive: return 0x0B;
+                    case PacketOutgoingType.ResourcePackStatus: return 0x18;
+                    case PacketOutgoingType.ChatMessage: return 0x01;
+                    case PacketOutgoingType.ClientStatus: return 0x02;
+                    case PacketOutgoingType.ClientSettings: return 0x03;
+                    case PacketOutgoingType.PluginMessage: return 0x09;
+                    case PacketOutgoingType.TabComplete: throw new InvalidOperationException("No tab completion in 17w46a?");
+                    case PacketOutgoingType.PlayerPosition: return 0x0D;
+                    case PacketOutgoingType.PlayerPositionAndLook: return 0x0E;
                     case PacketOutgoingType.TeleportConfirm: return 0x00;
                 }
             }
